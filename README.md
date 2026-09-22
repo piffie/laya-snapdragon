@@ -26,7 +26,7 @@ x64 wheels. Check with `python -c "import sysconfig; print(sysconfig.get_platfor
 `win-arm64`.
 
 ```powershell
-git clone <this repo> laya-snapdragon; cd laya-snapdragon
+git clone https://github.com/piffie/laya-snapdragon; cd laya-snapdragon
 py -V:3.13-arm64 -m venv .venv            # or the full path to your ARM64 python.exe
 .venv\Scripts\activate
 
