@@ -1,0 +1,53 @@
+name: Hardware report
+description: Ran it on your machine? Tell us how it went. Works or not, it fills the tested-hardware table.
+title: "[hardware] <chip>: <works / fails>"
+labels: ["hardware-report"]
+body:
+  - type: input
+    id: chip
+    attributes:
+      label: Chip and device
+      placeholder: "Snapdragon X Elite X1E-78-100, Surface Laptop 7"
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Windows build and power
+      placeholder: "Windows 11 26100, on AC"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python
+      description: 'Output of: python -c "import sys, sysconfig; print(sys.version.split()[0], sysconfig.get_platform())"'
+      placeholder: "3.13.14 win-arm64"
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Works (build, verify and bench all ran)
+        - Builds, but verify shows different answers
+        - Compile or session creation fails
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: Output of `python -m laya_snapdragon verify`
+      render: text
+  - type: textarea
+    id: bench
+    attributes:
+      label: Output of `python -m laya_snapdragon bench`
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Errors, logs, onnxruntime-qnn version if you changed it.

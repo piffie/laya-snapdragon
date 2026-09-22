@@ -1,0 +1,26 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><style>
+  html, body { margin: 0; width: 1280px; height: 640px; overflow: hidden; }
+  body { background: #0e1116; color: #e6edf3; font-family: "Segoe UI", system-ui, sans-serif;
+         display: flex; flex-direction: column; justify-content: center; padding: 0 88px; box-sizing: border-box; }
+  .kicker { font: 600 22px "Cascadia Code", Consolas, monospace; color: #7ee2b8; letter-spacing: .02em; }
+  h1 { font-size: 76px; font-weight: 700; margin: 10px 0 6px; letter-spacing: -.02em; }
+  .sub { font-size: 28px; color: #9aa7b4; margin-bottom: 44px; }
+  table { border-collapse: collapse; font-size: 28px; width: 100%; }
+  th { text-align: left; font-weight: 600; color: #9aa7b4; font-size: 20px; text-transform: uppercase;
+       letter-spacing: .08em; padding: 0 0 14px; }
+  td { padding: 14px 0; border-top: 1px solid #262c36; }
+  td.n, th.n { text-align: right; width: 190px; font-variant-numeric: tabular-nums; }
+  td.npu { color: #7ee2b8; font-weight: 700; }
+  td.cpu { color: #9aa7b4; }
+</style></head><body>
+  <div class="kicker">ONNX Runtime + QNN · Windows on ARM</div>
+  <h1>laya-snapdragon</h1>
+  <div class="sub">Calibrated typed decisions on the Snapdragon X NPU. Same answers as PyTorch.</div>
+  <table>
+    <tr><th>end to end</th><th class="n">NPU</th><th class="n">CPU</th></tr>
+    <tr><td>1 question, short email</td><td class="n npu">17 ms</td><td class="n cpu">97 ms</td></tr>
+    <tr><td>3 questions, short email</td><td class="n npu">52 ms</td><td class="n cpu">272 ms</td></tr>
+    <tr><td>3 questions, 512-token document</td><td class="n npu">677 ms</td><td class="n cpu">2.6 s</td></tr>
+  </table>
+</body></html>

@@ -1,5 +1,7 @@
 # laya-snapdragon
 
+![NPU vs CPU latency: 17 ms vs 97 ms for one question](docs/social-preview.png)
+
 Run [Laya](https://github.com/NandhaKishorM/laya), the calibrated typed-decision model from Convai
 Innovations, on the **Snapdragon X NPU** of a Windows on ARM laptop. You get the same answers as
 upstream PyTorch Laya, roughly 5× faster than the CPU, and no PyTorch at run time.
@@ -110,18 +112,27 @@ upstream, use `Agent(device="cpu")`.
 - **`onnxruntime-qnn==1.24.4` is pinned on purpose.** The 2.x line (the plugin EP, QNN SDK 2.50) works
   natively. It gives identical answers, but its compiled graphs ran about 1.5× slower here than 1.24.4's
   (QNN SDK 2.42), measured side by side (52–64 ms vs 35–38 ms under the same load). The runtime code
-  (`runtime.py`) supports both, so upgrading is a one-line change once that's fixed.
+  (`runtime.py`) supports both, so upgrading is a one-line change once that's fixed. Reported as
+  [onnxruntime-qnn#858](https://github.com/onnxruntime/onnxruntime-qnn/issues/858); `tools/qnn_compare.py` reproduces it.
 - **The 512 bucket spills.** The compiler reports ~4 GB of VTCM spill traffic at 512 tokens, so it costs
   ~225 ms per question against 17 ms at 128. If your inputs are short, build `--seq 128 256`.
 - The community `tozp/laya-onnx` builds: fp32 is fixed at 512 tokens, fp16 crashes or fails ORT's type
   check, and int8 flips about a third of the answers (40/62 argmax agreement). Build your own instead.
 - Batch 1 only on the NPU; multi-question calls run sequentially (about 17 ms each at 128).
 
+## Tested hardware
+
+| chip | HTP | result | reported by |
+|---|---|---|---|
+| Snapdragon X2 Elite | v81 | works (numbers above) | maintainer |
+| Snapdragon X Elite / X Plus | v73 | untested, should work (the package ships v73 libraries) | |
+
+Ran it on something else? Please [file a hardware report](https://github.com/piffie/laya-snapdragon/issues/new?template=hardware-report.yml),
+whether it worked or not.
+
 ## Status
 
-This is an experiment, not a product. It's tested on one machine (Snapdragon X2 Elite). The package
-also ships HTP v68/v73 libraries, so Snapdragon X Elite / X Plus (v73) should work, but that's untested.
-Reports welcome. Only the English `convaiinnovations/laya` checkpoint is wired up; the multilingual one
+This is an experiment, not a product. Only the English `convaiinnovations/laya` checkpoint is wired up; the multilingual one
 (mmBERT, 1,024 context) should need only a different download and bucket sizes.
 
 ## Credits and license
