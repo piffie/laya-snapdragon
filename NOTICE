@@ -1,0 +1,22 @@
+laya-snapdragon
+Copyright 2026 laya-snapdragon contributors
+
+This product includes software derived from Laya:
+https://github.com/NandhaKishorM/laya
+Copyright Convai Innovations and Laya contributors. Licensed under Apache-2.0.
+Upstream source revision: 6a5819129eb220570792e417e49723d697efd76f
+
+and from laya-mlx:
+https://github.com/mizorewww/laya-mlx
+Copyright 2026 laya-mlx contributors. Licensed under Apache-2.0.
+
+laya_snapdragon/common.py and laya_snapdragon/tokenizer.py (prompt construction, question
+rendering, calibration, confidence and the torch-free tokenizer wrapper) are taken from laya-mlx,
+which adapted them from Laya. The ONNX export, NPU graph rewrites, bucket routing and QNN runtime
+code are new.
+
+Model weights (convaiinnovations/laya, Apache-2.0) are downloaded from Hugging Face by
+`python -m laya_snapdragon build`; they are not included in this repository.
+
+ONNX Runtime and the Qualcomm QNN libraries are installed from the onnxruntime-qnn package
+under their own licenses.

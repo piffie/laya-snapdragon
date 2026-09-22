@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laya-snapdragon"
+version = "0.1.0"
+description = "Laya typed decisions on the Snapdragon X NPU (Windows on ARM) via ONNX Runtime + QNN"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+dependencies = [
+    "onnxruntime-qnn==1.24.4",  # QNN EP built in; its compiler (QNN 2.42) beats the 2.x plugin's here, see README
+    "numpy>=1.26",
+    "tokenizers>=0.20",
+    "onnx>=1.17",
+    "huggingface_hub>=0.25",
+]
+
+[project.optional-dependencies]
+# Only for `build` step 2 (PyTorch -> ONNX). torch itself: pip install torch --index-url https://download.pytorch.org/whl/cpu
+export = [
+    "onnxscript>=0.5",
+    "transformers>=4.48",
+    "safetensors>=0.4",
+    "laya @ git+https://github.com/NandhaKishorM/laya@6a5819129eb220570792e417e49723d697efd76f",
+]
+
+[tool.setuptools]
+packages = ["laya_snapdragon"]
