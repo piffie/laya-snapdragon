@@ -16,7 +16,7 @@ from .common import QTYPES, build_sequence, confidence_from_probs, render_option
 from .runtime import cpu_session, npu_session
 from .tokenizer import Tokenizer
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 HF_REPO = "convaiinnovations/laya"
 HF_REVISION = "1c5edc17a7acd8701df6fc341c0d179f1c62c982"  # the checkpoint every number in the README was measured on

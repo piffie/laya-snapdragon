@@ -2,12 +2,14 @@
 
     python -m laya_snapdragon build                  # everything, default buckets 128 256 512 (x 8 options)
     python -m laya_snapdragon build --seq 128 256    # fewer / other buckets
+    python -m laya_snapdragon build --export         # export the ONNX yourself from PyTorch instead
 
 Steps (each is skipped when its output already exists):
-1. download  the Laya checkpoint from Hugging Face, pinned revision
-2. export    PyTorch -> ONNX with dynamic batch/sequence/option dims       (needs the [export] extras)
-3. bucket    pin one shape per bucket and rewrite 3 op types the NPU can't run (exact rewrites)
-4. compile   QNN HTP fp16 context per bucket, cached next to the model     (~1-2 min each, once)
+1. get the fp32 ONNX with dynamic batch/sequence/option dims, either
+   - download it from Hugging Face (piffie/laya-onnx, pinned revision; no PyTorch needed), or
+   - --export: download the Laya checkpoint and export it from PyTorch     (needs the [export] extras)
+2. bucket    pin one shape per bucket and rewrite 2 op types the NPU can't run well (exact rewrites)
+3. compile   QNN HTP fp16 context per bucket, cached next to the model     (~1-2 min each, once)
 """
 
 import collections
@@ -16,6 +18,10 @@ import time
 from pathlib import Path
 
 from . import HF_REPO, HF_REVISION
+
+# the output of export() below, published: same file as `build --export` produces (see its model card)
+ONNX_REPO = "piffie/laya-onnx"
+ONNX_REVISION = "17f6ef44c69f50e861d562305959b575a733120e"
 
 INPUTS = ["input_ids", "attention_mask", "marker_pos", "marker_mask", "qtype"]
 
@@ -34,6 +40,28 @@ def download(models: Path):
     snapshot_download(HF_REPO, revision=HF_REVISION, local_dir=str(dst),
                       allow_patterns=["model.safetensors", "rl_agent_config.json", "encoder/*", "tokenizer/*"])
     return dst
+
+
+def download_onnx(models: Path):
+    """The exported ONNX plus the checkpoint's calibration config and tokenizer (all the runtime needs)."""
+    import shutil
+
+    from huggingface_hub import snapshot_download
+
+    target = models / "onnx" / "laya_fp32.onnx"
+    if target.exists() and (models / "laya" / "rl_agent_config.json").exists():
+        return target
+    log(f"download  {ONNX_REPO}@{ONNX_REVISION[:7]} (1.7 GB)")
+    src = Path(snapshot_download(ONNX_REPO, revision=ONNX_REVISION, local_dir=str(models / "hub-onnx")))
+    (models / "onnx").mkdir(parents=True, exist_ok=True)
+    (models / "laya" / "tokenizer").mkdir(parents=True, exist_ok=True)
+    for name in ("laya_fp32.onnx", "laya_fp32.onnx.data"):
+        (src / name).replace(models / "onnx" / name)
+    (src / "rl_agent_config.json").replace(models / "laya" / "rl_agent_config.json")
+    for f in (src / "tokenizer").iterdir():
+        f.replace(models / "laya" / "tokenizer" / f.name)
+    shutil.rmtree(src, ignore_errors=True)
+    return target
 
 
 def export(models: Path):
@@ -135,10 +163,13 @@ def compile_bucket(models: Path, seq: int, markers: int):
     return ctx
 
 
-def build(models="models", seqs=(128, 256, 512), markers=8, npu=True):
+def build(models="models", seqs=(128, 256, 512), markers=8, npu=True, from_torch=False):
     models = Path(models)
-    download(models)
-    export(models)
+    if from_torch:
+        download(models)
+        export(models)
+    else:
+        download_onnx(models)
     if npu:
         for seq in seqs:
             bucket(models, seq, markers)

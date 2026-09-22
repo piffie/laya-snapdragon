@@ -31,19 +31,27 @@ x64 wheels. Check with `python -c "import sysconfig; print(sysconfig.get_platfor
 git clone https://github.com/piffie/laya-snapdragon; cd laya-snapdragon
 py -V:3.13-arm64 -m venv .venv            # or the full path to your ARM64 python.exe
 .venv\Scripts\activate
+pip install -e .                          # onnxruntime-qnn, tokenizers, numpy, onnx; no PyTorch
 
-pip install -e .
-pip install torch --index-url https://download.pytorch.org/whl/cpu   # native win-arm64 wheel
-$env:PYTHONUTF8 = "1"                     # upstream Laya's setup.py reads its README as cp1252 otherwise
-pip install -e ".[export]"
-
-python -m laya_snapdragon build           # ~10 min once: download 0.8 GB, export, compile 3 NPU buckets
-python -m laya_snapdragon verify --torch  # NPU vs CPU vs PyTorch on built-in examples
+python -m laya_snapdragon build           # ~5 min once: download 1.7 GB, compile 3 NPU buckets
+python -m laya_snapdragon verify          # NPU vs the CPU model on built-in examples
 python -m laya_snapdragon bench
 ```
 
-Disk: about 9 GB under `models/` (the fp32 ONNX plus a fixed-shape copy and a compiled context per
-bucket). After `build` you can uninstall torch; running only needs `onnxruntime-qnn`, `tokenizers` and `numpy`.
+`build` downloads the fp32 ONNX export from Hugging Face,
+[piffie/laya-onnx](https://huggingface.co/piffie/laya-onnx) (pinned revision; the model card lists
+checksums and parity with PyTorch). To export it yourself from the original checkpoint instead:
+
+```powershell
+pip install torch --index-url https://download.pytorch.org/whl/cpu   # native win-arm64 wheel
+$env:PYTHONUTF8 = "1"                     # upstream Laya's setup.py reads its README as cp1252 otherwise
+pip install -e ".[export]"
+python -m laya_snapdragon build --export  # + ~3 min, ~6 GB RAM
+python -m laya_snapdragon verify --torch  # also compares against upstream PyTorch Laya
+```
+
+Disk: about 9 GB under `models/` with all three buckets (the fp32 ONNX plus a fixed-shape copy and a
+compiled context per bucket). `build --seq 128 256` skips the slow 512 bucket.
 
 ```python
 from laya_snapdragon import Agent

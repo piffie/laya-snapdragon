@@ -11,7 +11,7 @@ import numpy as np
 def cmd_build(a):
     from .build import build
 
-    build(a.models, a.seq, a.markers, npu=not a.no_npu)
+    build(a.models, a.seq, a.markers, npu=not a.no_npu, from_torch=a.export)
 
 
 def cmd_predict(a):
@@ -99,10 +99,12 @@ def main(argv=None):
     p.add_argument("--models", default="models", help="model directory (default: ./models)")
     sub = p.add_subparsers(dest="cmd", required=True)
 
-    b = sub.add_parser("build", help="download, export and compile the NPU buckets")
+    b = sub.add_parser("build", help="get the ONNX model and compile the NPU buckets")
     b.add_argument("--seq", type=int, nargs="+", default=[128, 256, 512], help="sequence-length buckets")
     b.add_argument("--markers", type=int, default=8, help="max options per question on the NPU")
     b.add_argument("--no-npu", action="store_true", help="only the CPU model")
+    b.add_argument("--export", action="store_true",
+                   help="export the ONNX from PyTorch yourself instead of downloading piffie/laya-onnx (needs [export])")
     b.set_defaults(fn=cmd_build)
 
     r = sub.add_parser("predict", help="answer typed questions about a state")

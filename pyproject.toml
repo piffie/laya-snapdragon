@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "laya-snapdragon"
-version = "0.1.0"
+version = "0.2.0"
 description = "Laya typed decisions on the Snapdragon X NPU (Windows on ARM) via ONNX Runtime + QNN"
 readme = "README.md"
 requires-python = ">=3.11"
